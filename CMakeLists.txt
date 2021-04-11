@@ -1,25 +1,28 @@
 cmake_minimum_required(VERSION 3.5)
+
 project(cpp-tpcc)
+
+find_package(Threads REQUIRED)
 set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(CMAKE_CXX_EXTENSIONS OFF)
 
-aux_source_directory(./ source_files)
+set(CMAKE_VERBOSE_MAKEFILE OFF)
+set(CMAKE_POSITION_INDEPENDENT_CODE ON)
+set(CMAKE_MACOSX_RPATH 1)
 
-include_directories(/usr/include)
-include_directories(/usr/local/include)
+find_program(CCACHE_PROGRAM ccache)
+if(CCACHE_PROGRAM)
+  set_property(GLOBAL PROPERTY RULE_LAUNCH_COMPILE "${CCACHE_PROGRAM}")
+endif()
 
-link_directories(
-/usr/lib
-/usr/local/lib
-)
+option(BUILD_DUCKDB_DRIVER "Build duckdb driver." TRUE)
 
-set(src ${source_files})
-# set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O3 -fPIC")
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O0 -g -fPIC")
+include_directories(src/include)
+add_subdirectory(src)
 
-add_executable(cpp-tpcc ${src})
-
-set(lab_libs
-    gflags
-    duckdb)
-
-target_link_libraries(cpp-tpcc ${lab_libs})
+if(${BUILD_DUCKDB_DRIVER})
+    # include_directories(${PROJECT_SOURCE_DIR}/duckdb/include)
+    add_subdirectory(duckdb)
+    add_definitions(-DBUILD_DUCKDB_DRIVER=${BUILD_DUCKDB_DRIVER})
+endif()
