@@ -84,7 +84,7 @@ int main(int argc, char** argv) {
     {
         auto con = std::make_shared<Connection>(*db);
         if ((FLAGS_threads > 1) && (i == 0)) {
-            con->Query(std::string("PRAGMA THREADS ") + std::to_string(FLAGS_threads));
+            con->Query(std::string("PRAGMA THREADS=") + std::to_string(FLAGS_threads));
         }
 
         if (i == 0) {
